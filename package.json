@@ -1,0 +1,19 @@
+{
+  "name": "ngx-file-droppa",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^9.0.5",
+    "@angular/core": "^9.0.5",
+    "tslib": "^1.10.0"
+  },
+  "main": "bundles/ngx-file-droppa.umd.js",
+  "module": "fesm5/ngx-file-droppa.js",
+  "es2015": "fesm2015/ngx-file-droppa.js",
+  "esm5": "esm5/ngx-file-droppa.js",
+  "esm2015": "esm2015/ngx-file-droppa.js",
+  "fesm5": "fesm5/ngx-file-droppa.js",
+  "fesm2015": "fesm2015/ngx-file-droppa.js",
+  "typings": "ngx-file-droppa.d.ts",
+  "metadata": "ngx-file-droppa.metadata.json",
+  "sideEffects": false
+}

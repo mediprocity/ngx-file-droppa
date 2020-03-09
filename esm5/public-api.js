@@ -1,0 +1,5 @@
+/*
+ * Public API Surface of ngx-file-droppa
+ */
+export * from './lib/ngx-file-droppa.module';
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicHVibGljLWFwaS5qcyIsInNvdXJjZVJvb3QiOiJuZzovL25neC1maWxlLWRyb3BwYS8iLCJzb3VyY2VzIjpbInB1YmxpYy1hcGkudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7O0dBRUc7QUFFSCxjQUFjLDhCQUE4QixDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiLypcbiAqIFB1YmxpYyBBUEkgU3VyZmFjZSBvZiBuZ3gtZmlsZS1kcm9wcGFcbiAqL1xuXG5leHBvcnQgKiBmcm9tICcuL2xpYi9uZ3gtZmlsZS1kcm9wcGEubW9kdWxlJztcbiJdfQ==
