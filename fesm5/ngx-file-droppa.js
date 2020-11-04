@@ -416,7 +416,7 @@ var FileParser = /** @class */ (function () {
     FileParser.prototype.flattenArrayOfFiles = function (arrayOfPromises) {
         return Promise.resolve(arrayOfPromises.reduce(function (result, file) {
             if (file) {
-                return __spread(result, file);
+                return __spread(result, [file]);
             }
         }, []));
     };

@@ -656,7 +656,7 @@ let FileParser = class FileParser {
     flattenArrayOfFiles(arrayOfPromises) {
         return Promise.resolve(arrayOfPromises.reduce((result, file) => {
             if (file) {
-                return [...result, ...file];
+                return [...result, ...[file]];
             }
         }, []));
     }
