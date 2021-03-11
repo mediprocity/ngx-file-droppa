@@ -1,6 +1,7 @@
 import { ElementRef } from '@angular/core';
 import { FileParser } from "../Services/FileParser.service";
 import { FilesStore } from "../Services/FileStore.service";
+import * as i0 from "@angular/core";
 export declare class FileDropZone {
     private filesStore;
     private el;
@@ -18,4 +19,7 @@ export declare class FileDropZone {
     updateStyles(dragOver?: boolean): void;
     updateFilesStore(files: Array<File>): void;
     createHiddenInput(): void;
+    static ɵfac: i0.ɵɵFactoryDef<FileDropZone, never>;
+    static ɵcmp: i0.ɵɵComponentDefWithMeta<FileDropZone, "fileDropZone, [fileDropZone]", never, { "multiple": "multiple"; }, {}, never, ["*"]>;
 }
+//# sourceMappingURL=FileDropZone.d.ts.map

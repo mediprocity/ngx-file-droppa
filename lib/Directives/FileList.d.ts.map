@@ -1,0 +1,1 @@
+{"version":3,"file":"FileList.d.ts","sourceRoot":"","sources":["../../../../projects/ngx-file-droppa/src/lib/Directives/FileList.ts"],"names":[],"mappings":"AAEA,OAAO,EAAC,UAAU,EAAC,MAAM,+BAA+B,CAAC;AAEzD,OAAO,EAAC,KAAK,EAAC,MAAM,iCAAiC,CAAC;;AAEtD,qBAwBa,QAAQ;IACE,UAAU,EAAC,UAAU;gBAArB,UAAU,EAAC,UAAU;IAGxC,UAAU,CAAC,KAAK,EAAC,KAAK;iCAJb,QAAQ;2CAAR,QAAQ;CAOpB"}
