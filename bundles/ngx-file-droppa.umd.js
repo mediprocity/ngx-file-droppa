@@ -2,7 +2,7 @@
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core')) :
     typeof define === 'function' && define.amd ? define('ngx-file-droppa', ['exports', '@angular/common', '@angular/core'], factory) :
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global['ngx-file-droppa'] = {}, global.ng.common, global.ng.core));
-}(this, (function (exports, i1, i0) { 'use strict';
+}(this, (function (exports, common, core) { 'use strict';
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -329,7 +329,7 @@
 
     var FilesStore = /** @class */ (function () {
         function FilesStore() {
-            this.filesUpdated = new i0.EventEmitter(true);
+            this.filesUpdated = new core.EventEmitter(true);
             this.startAutoUploading = null;
             this.beforeAddFile = null;
             this.WSfiles = new WeakSet();
@@ -373,7 +373,7 @@
                 _this.startAutoUploading && _this.startAutoUploading(iFile);
                 return iFile;
             });
-            this.iFiles = __spread(this.iFiles, files);
+            this.iFiles = __spreadArray(__spreadArray([], __read(this.iFiles)), __read(files));
             this.filesUpdated.emit(true);
         };
         FilesStore.prototype.removeFiles = function (iFile) {
@@ -393,21 +393,17 @@
         };
         return FilesStore;
     }());
-    FilesStore.ɵfac = function FilesStore_Factory(t) { return new (t || FilesStore)(); };
-    FilesStore.ɵprov = i0.ɵɵdefineInjectable({ token: FilesStore, factory: FilesStore.ɵfac });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FilesStore, [{
-                type: i0.Injectable
-            }], null, null);
-    })();
+    FilesStore.decorators = [
+        { type: core.Injectable }
+    ];
 
     var FileUpload = /** @class */ (function () {
         function FileUpload() {
-            this.zone = new i0.NgZone({ enableLongStackTrace: false });
+            this.zone = new core.NgZone({ enableLongStackTrace: false });
             this.url = null;
             this.beforeRequest = null;
             this.beforeFileUpload = null;
-            this.fileUploadedEvent = new i0.EventEmitter(true);
+            this.fileUploadedEvent = new core.EventEmitter(true);
         }
         FileUpload.prototype.uploadFiles = function (iFiles) {
             var _this = this;
@@ -470,13 +466,157 @@
         };
         return FileUpload;
     }());
-    FileUpload.ɵfac = function FileUpload_Factory(t) { return new (t || FileUpload)(); };
-    FileUpload.ɵprov = i0.ɵɵdefineInjectable({ token: FileUpload, factory: FileUpload.ɵfac });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileUpload, [{
-                type: i0.Injectable
-            }], null, null);
-    })();
+    FileUpload.decorators = [
+        { type: core.Injectable }
+    ];
+
+    var FileDroppa = /** @class */ (function () {
+        function FileDroppa(filesStore, fileUploadService) {
+            var _this = this;
+            this.filesStore = filesStore;
+            this.fileUploadService = fileUploadService;
+            this.showFilesList = true;
+            this.autoUpload = false;
+            this.beforeRequest = null;
+            this.beforeFileUpload = null;
+            this.beforeAddFile = null;
+            this.dropZoneTemplate = "\n      <div class=\"file_dropZone_internal\">\n          Drop Files Here\n      </div>\n    ";
+            this.filesUpdated = new core.EventEmitter(true);
+            this.fileUploaded = new core.EventEmitter(true);
+            this.uploadButtonTemplate = "\n      <div class=\"file-droppa-btn orange\">\n        <span>Upload All Files</span>\n       </div>\n    ";
+            this.removeButtonTemplate = "\n      <div class=\"file-droppa-btn red\">\n        <span>Remove All Files</span>\n       </div>\n    ";
+            this.multiple = true;
+            filesStore.filesUpdated.subscribe(function () {
+                _this.filesUpdated.emit(filesStore.files);
+            });
+            fileUploadService.fileUploadedEvent.subscribe(function (_a) {
+                var _b = __read(_a, 3), success = _b[0], response = _b[1], iFile = _b[2];
+                if (success) {
+                    _this.filesStore.removeFiles(iFile);
+                }
+                else {
+                    iFile.loadingSuccessful = false;
+                    iFile.responseText = false;
+                }
+                _this.fileUploaded.emit([success, response, iFile.file]);
+            });
+            filesStore.startAutoUploading = this.startAutoUploading.bind(this);
+        }
+        Object.defineProperty(FileDroppa.prototype, "url", {
+            set: function (tmpUrl) {
+                this.fileUploadService.url = tmpUrl;
+            },
+            enumerable: false,
+            configurable: true
+        });
+        FileDroppa.prototype.startAutoUploading = function (iFile) {
+            this.autoUpload && this.fileUploadService.uploadFile(iFile);
+        };
+        /**
+         * We got to pass Input parameters to Service instances
+         */
+        FileDroppa.prototype.ngOnInit = function () {
+            this.filesStore.beforeAddFile = (typeof this.beforeAddFile === "function") ? this.beforeAddFile : function (file) { return true; };
+            this.fileUploadService.beforeRequest = this.beforeRequest;
+            this.fileUploadService.beforeFileUpload = (typeof this.beforeFileUpload === "function") ? this.beforeFileUpload : function (formData) { return true; };
+        };
+        FileDroppa.prototype.removeAllFiles = function () {
+            this.filesStore.clearStore();
+        };
+        FileDroppa.prototype.uploadAllFiles = function () {
+            this.fileUploadService.uploadFiles(this.filesStore.iFiles);
+        };
+        return FileDroppa;
+    }());
+    FileDroppa.decorators = [
+        { type: core.Component, args: [{
+                    selector: 'fileDroppa',
+                    providers: [FilesStore, FileUpload],
+                    encapsulation: core.ViewEncapsulation.None,
+                    template: "\n        <div class=\"file-droppa-container\">\n            <fileDropZone [multiple]=\"multiple\">\n                <div [innerHTML]=\"dropZoneTemplate\"></div>\n            </fileDropZone>\n            <br/>\n            <ng-content></ng-content>\n            <fileList *ngIf=\"showFilesList\"></fileList>\n            <div class=\"file-droppa-btns\" *ngIf=\"filesStore.iFiles.length\">\n              <div #uploadButtonArea (click)=\"uploadAllFiles()\">\n                <ng-content select=\"[upload-button]\"></ng-content>\n              </div>\n              <div *ngIf=\"uploadButtonArea.children.length === 0\" (click)=\"uploadAllFiles();\"\n                   [innerHTML]=\"uploadButtonTemplate\"></div>\n              <div #removeButtonArea (click)=\"removeAllFiles();\">\n                <ng-content select=\"[remove-button]\"></ng-content>\n              </div>\n              <div *ngIf=\"removeButtonArea.children.length === 0\" (click)=\"removeAllFiles();\"\n                   [innerHTML]=\"removeButtonTemplate\"></div>\n            </div>\n        </div>\n    ",
+                    styles: ["\n        .file-droppa-container {\n            width: 400px;\n        }\n        .file-droppa-btns {\n         display: flex;\n          align-items: center;\n          justify-content: center;\n\n        }\n        .file-droppa-btn {\n              margin: 15px;\n              padding: 0;\n\n              overflow: hidden;\n\n              border-width: 0;\n              outline: none;\n              border-radius: 2px;\n              box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n\n              background-color: #2ecc71;\n              color: #ecf0f1;\n\n              transition: background-color .3s;\n              width: 140px;\n              text-align: center;\n              font-size: 12px;\n\n        }\n\n        .file-droppa-btn:hover{\n          background-color: #27ae60;\n        }\n\n        .file-droppa-btn span {\n          display: block;\n          padding: 12px 24px;\n        }\n\n        .file-droppa-btn.orange {\n          background-color: #e67e22;\n        }\n\n        .file-droppa-btn.orange:hover {\n          background-color: #d35400;\n        }\n\n        .file-droppa-btn.red {\n          background-color: #e74c3c;\n        }\n\n        .file-droppa-btn.red:hover{\n          background-color: #c0392b;\n        }\n        "]
+                },] }
+    ];
+    FileDroppa.ctorParameters = function () { return [
+        { type: FilesStore },
+        { type: FileUpload }
+    ]; };
+    FileDroppa.propDecorators = {
+        showFilesList: [{ type: core.Input }],
+        autoUpload: [{ type: core.Input }],
+        beforeRequest: [{ type: core.Input }],
+        url: [{ type: core.Input }],
+        beforeFileUpload: [{ type: core.Input }],
+        beforeAddFile: [{ type: core.Input }],
+        dropZoneTemplate: [{ type: core.Input }],
+        filesUpdated: [{ type: core.Output }],
+        fileUploaded: [{ type: core.Output }],
+        uploadButtonTemplate: [{ type: core.Input }],
+        removeButtonTemplate: [{ type: core.Input }],
+        multiple: [{ type: core.Input }]
+    };
+
+    var File = /** @class */ (function () {
+        function File() {
+            this.ext = '';
+            this.previewSrc = '';
+            this.fileName = '';
+            //TODO: workaround - depends on strict values;
+            this.previewHeight = 75;
+            this.removeFile = new core.EventEmitter(true);
+        }
+        //ngHooks
+        File.prototype.ngAfterContentInit = function () {
+            this.file && this.getFileType();
+        };
+        File.prototype.removeFileListener = function (e) {
+            e.preventDefault();
+            this.removeFile && this.removeFile.emit(true);
+        };
+        File.prototype.getFileType = function () {
+            var _this = this;
+            var imageType = /^image\//, reader;
+            if (!imageType.test(this.file.type)) {
+                var ext = this.file.name.split('.').pop();
+                this.fileName = this.file.name;
+                this.ext = ext.length > 3
+                    ? 'file'
+                    : "." + ext;
+                return;
+            }
+            reader = new FileReader();
+            reader.addEventListener("load", function () {
+                var img = new Image, result = reader.result;
+                img.onload = function () {
+                    var ratio = img.height / img.width, scaledHeight = ratio * _this.previewHeight;
+                    _this.previewSrc = result;
+                    _this.previewHeight = (scaledHeight < _this.previewHeight)
+                        ? _this.previewHeight
+                        : scaledHeight;
+                };
+                img.src = result;
+            }, false);
+            if (this.file) {
+                reader.readAsDataURL(this.file);
+            }
+        };
+        return File;
+    }());
+    File.decorators = [
+        { type: core.Component, args: [{
+                    selector: 'fileItem',
+                    template: "\n        <div *ngIf=\"file\" class=\"file-container\">\n            <div class=\"flex-block file-preview\" [ngStyle]=\"{'background-image': 'url(' + previewSrc + ')', 'height': previewHeight + 'px'}\">\n                <div *ngIf=\"ext\" class=\"flex-block file-preview-ext \">{{ext}}</div>\n                <div *ngIf=\"!previewSrc\" class=\"flex-block file-name\">{{fileName}}</div>\n                <progress [value]=\"percentage\" max=\"100\" class=\"file-progress\"></progress>\n            </div>\n            <div class=\"file-remove\">\n                <span class=\"remove\"><a href=\"#\" (click)=\"removeFileListener($event)\"></a></span>\n            </div>\n            <div *ngIf=\"!loadingSuccessful\" class=\"file-upload-error\">\n                <span class=\"warning\"></span>\n                <span *ngIf=\"responseMessage\" class=\"tooltiptext\">{{responseMessage}}</span>\n            </div>\n            <div class=\"flex-block\">{{file.size | getSize }}</div>\n        </div>\n    ",
+                    styles: ["\n        .file-container {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            width: 75px;\n            margin: 20px 10px 0 0;\n            transition: opacity 0.5s, margin 0.5s linear;\n            flex-direction: column;\n            position:relative;\n        }\n\n        .file-container.uploaded {\n            opacity: 0;\n            margin: 0;\n            height: 0;\n            overflow: hidden;\n        }\n\n        .flex-block {\n            width: 90%;\n            text-align: center;\n            font-size: 0.8em;\n            margin: 2px 0;\n        }\n\n        .file-remove {\n            cursor: pointer;\n            position: absolute;\n            left: 87%;\n            top: 8px;\n        }\n        .file-upload-error {\n            position: absolute;\n            top: 8px;\n            left:-8px;\n        }\n        .file-name {\n            text-overflow: ellipsis;\n            overflow: hidden;\n        }\n\n        .file-preview {\n            background: #ccc;\n            border-radius: 2px;\n            width: inherit;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            flex-direction: column;\n            background-size: cover;\n            color: #fff;\n        }\n\n         .file-preview-ext {\n            text-transform: uppercase;\n        }\n\n        .file-progress {\n            width: 80%;\n            display: block;\n        }\n\n\n        button {\n            margin: 0;\n        }\n\nspan {\n    position:relative;\n    z-index:1;\n    overflow:hidden;\n    list-style:none;\n    padding:0;\n    margin:0 0 0.25em;\n}\n\nspan a:link {\n    display:block;\n    border:0;\n    padding-left:28px;\n    color:#c55500;\n}\n\nspan a:hover,\nspan a:focus {\n    color:#730800;\n    background:transparent;\n}\n\nspan:before,\nspan:after,\nspan a:before,\nspan a:after {\n    content:\"\";\n    position:absolute;\n    top:50%;\n    left:0;\n}\n\nspan a:before,\nspan a:after {\n    margin:-8px 0 0;\n    background:#c55500;\n}\n\nspan a:hover:before,\nspan a:focus:before {\n    background:#730800;\n}\n\n\n.remove a:before {\n    width:16px;\n    height:16px;\n    /* css3 */\n    -webkit-border-radius:16px;\n    -moz-border-radius:16px;\n    border-radius:16px;\n}\n\n.remove a:after {\n    left:3px;\n    width:10px;\n    height:2px;\n    margin-top:-1px;\n    background:#fff;\n}\n.warning:before {\n    content:\"!\";\n    z-index:2;\n    left:8px;\n    margin-top:-8px;\n    font-size:14px;\n    font-weight:bold;\n    color:#000;\n}\n\n.warning:after {\n    z-index:1;\n    border-width:0 11px 18px;\n    border-style:solid;\n    border-color:#F8D201 transparent;\n    margin-top:-10px;\n    background:transparent;\n}\n\n.file-upload-error .tooltiptext {\n    visibility: hidden;\n    white-space:nowrap;\n    background-color: black;\n    color: #fff;\n    text-align: center;\n    padding: 5px;\n    border-radius: 6px;\n\n    /* Position the tooltip text - see examples below! */\n    position: absolute;\n    z-index: 1;\n}\n\n.file-upload-error:hover .tooltiptext {\n    visibility: visible;\n}\n\n    "]
+                },] }
+    ];
+    File.propDecorators = {
+        file: [{ type: core.Input }],
+        index: [{ type: core.Input }],
+        percentage: [{ type: core.Input }],
+        loadingSuccessful: [{ type: core.Input }],
+        responseMessage: [{ type: core.Input }],
+        removeFile: [{ type: core.Output }]
+    };
 
     var FileParser = /** @class */ (function () {
         function FileParser() {
@@ -555,21 +695,16 @@
         FileParser.prototype.flattenArrayOfFiles = function (arrayOfPromises) {
             return Promise.resolve(arrayOfPromises.reduce(function (result, file) {
                 if (file) {
-                    return __spread(result, [file]);
+                    return __spreadArray(__spreadArray([], __read(result)), [file]);
                 }
             }, []));
         };
         return FileParser;
     }());
-    FileParser.ɵfac = function FileParser_Factory(t) { return new (t || FileParser)(); };
-    FileParser.ɵprov = i0.ɵɵdefineInjectable({ token: FileParser, factory: FileParser.ɵfac });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileParser, [{
-                type: i0.Injectable
-            }], null, null);
-    })();
+    FileParser.decorators = [
+        { type: core.Injectable }
+    ];
 
-    var _c0$2 = ["*"];
     var FileDropZone = /** @class */ (function () {
         function FileDropZone(filesStore, el, fileParser) {
             this.filesStore = filesStore;
@@ -606,7 +741,7 @@
             }
             this.promise = this.fileParser.processInputFromDrop(e)
                 .then(function (files) {
-                _this.updateFilesStore(__spread(files));
+                _this.updateFilesStore(__spreadArray([], __read(files)));
             });
             this.updateStyles();
         };
@@ -660,38 +795,50 @@
         };
         return FileDropZone;
     }());
-    FileDropZone.ɵfac = function FileDropZone_Factory(t) { return new (t || FileDropZone)(i0.ɵɵdirectiveInject(FilesStore), i0.ɵɵdirectiveInject(i0.ElementRef), i0.ɵɵdirectiveInject(FileParser)); };
-    FileDropZone.ɵcmp = i0.ɵɵdefineComponent({ type: FileDropZone, selectors: [["fileDropZone"], ["", "fileDropZone", ""]], hostBindings: function FileDropZone_HostBindings(rf, ctx) {
-            if (rf & 1) {
-                i0.ɵɵlistener("drop", function FileDropZone_drop_HostBindingHandler($event) { return ctx.drop($event); })("dragenter", function FileDropZone_dragenter_HostBindingHandler($event) { return ctx.dragenter($event); })("dragover", function FileDropZone_dragover_HostBindingHandler($event) { return ctx.dragover($event); })("dragleave", function FileDropZone_dragleave_HostBindingHandler($event) { return ctx.dragleave($event); })("click", function FileDropZone_click_HostBindingHandler($event) { return ctx.onClick($event); });
-            }
-        }, inputs: { multiple: "multiple" }, features: [i0.ɵɵProvidersFeature([FileParser])], ngContentSelectors: _c0$2, decls: 1, vars: 0, template: function FileDropZone_Template(rf, ctx) {
-            if (rf & 1) {
-                i0.ɵɵprojectionDef();
-                i0.ɵɵprojection(0);
-            }
-        }, styles: ["\n        .file_dropZone_internal {\n            border: 3px dashed #DDD;\n            border-radius:10px;\n            padding:10px;\n            width:400px;\n            height:200px;\n            color:#CCC;\n            text-align:center;\n            display:table-cell;\n            vertical-align:middle;\n            cursor:pointer;\n        }\n    "], encapsulation: 2 });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileDropZone, [{
-                type: i0.Component,
-                args: [{
-                        selector: 'fileDropZone, [fileDropZone]',
-                        providers: [FileParser],
-                        styles: ["\n        .file_dropZone_internal {\n            border: 3px dashed #DDD;\n            border-radius:10px;\n            padding:10px;\n            width:400px;\n            height:200px;\n            color:#CCC;\n            text-align:center;\n            display:table-cell;\n            vertical-align:middle;\n            cursor:pointer;\n        }\n    "],
-                        template: "\n        <ng-content></ng-content>\n    ",
-                        host: {
-                            '(drop)': 'drop($event)',
-                            '(dragenter)': 'dragenter($event)',
-                            '(dragover)': 'dragover($event)',
-                            '(dragleave)': 'dragleave($event)',
-                            '(click)': 'onClick($event)'
-                        },
-                        encapsulation: i0.ViewEncapsulation.None
-                    }]
-            }], function () { return [{ type: FilesStore }, { type: i0.ElementRef }, { type: FileParser }]; }, { multiple: [{
-                    type: i0.Input
-                }] });
-    })();
+    FileDropZone.decorators = [
+        { type: core.Component, args: [{
+                    selector: 'fileDropZone, [fileDropZone]',
+                    providers: [FileParser],
+                    template: "\n        <ng-content></ng-content>\n    ",
+                    host: {
+                        '(drop)': 'drop($event)',
+                        '(dragenter)': 'dragenter($event)',
+                        '(dragover)': 'dragover($event)',
+                        '(dragleave)': 'dragleave($event)',
+                        '(click)': 'onClick($event)'
+                    },
+                    encapsulation: core.ViewEncapsulation.None,
+                    styles: ["\n        .file_dropZone_internal {\n            border: 3px dashed #DDD;\n            border-radius:10px;\n            padding:10px;\n            width:400px;\n            height:200px;\n            color:#CCC;\n            text-align:center;\n            display:table-cell;\n            vertical-align:middle;\n            cursor:pointer;\n        }\n    "]
+                },] }
+    ];
+    FileDropZone.ctorParameters = function () { return [
+        { type: FilesStore },
+        { type: core.ElementRef },
+        { type: FileParser }
+    ]; };
+    FileDropZone.propDecorators = {
+        multiple: [{ type: core.Input }]
+    };
+
+    var FileList = /** @class */ (function () {
+        function FileList(filesStore) {
+            this.filesStore = filesStore;
+        }
+        FileList.prototype.removeFile = function (iFile) {
+            this.filesStore.removeFiles(iFile);
+        };
+        return FileList;
+    }());
+    FileList.decorators = [
+        { type: core.Component, args: [{
+                    selector: 'fileList, [fileList]',
+                    template: "\n        <div class=\"file-list\">\n            <fileItem *ngFor=\"let file of filesStore.iFiles\"\n                [file]=\"file.File\"\n                [percentage]=\"file.percentage\"\n                [loadingSuccessful]=\"file.loadingSuccessful\"\n                [responseMessage]=\"file.responseMessage\"\n                (removeFile)=\"removeFile(file)\">\n            </fileItem>\n        </div>\n    ",
+                    styles: ["\n        .file-list {\n            width: 430px;\n            margin-bottom: 5px;\n            display: flex;\n            flex-flow: wrap;\n            justify-content: flex-start;\n         }\n    "]
+                },] }
+    ];
+    FileList.ctorParameters = function () { return [
+        { type: FilesStore }
+    ]; };
 
     /*
      * Converts bytes to MB, GB and so on
@@ -714,445 +861,35 @@
         };
         return GetSizePipe;
     }());
-    GetSizePipe.ɵfac = function GetSizePipe_Factory(t) { return new (t || GetSizePipe)(); };
-    GetSizePipe.ɵpipe = i0.ɵɵdefinePipe({ name: "getSize", type: GetSizePipe, pure: true });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(GetSizePipe, [{
-                type: i0.Pipe,
-                args: [{ name: 'getSize' }]
-            }], null, null);
-    })();
-
-    function File_div_0_div_2_Template(rf, ctx) {
-        if (rf & 1) {
-            i0.ɵɵelementStart(0, "div", 11);
-            i0.ɵɵtext(1);
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var ctx_r1 = i0.ɵɵnextContext(2);
-            i0.ɵɵadvance(1);
-            i0.ɵɵtextInterpolate(ctx_r1.ext);
-        }
-    }
-    function File_div_0_div_3_Template(rf, ctx) {
-        if (rf & 1) {
-            i0.ɵɵelementStart(0, "div", 12);
-            i0.ɵɵtext(1);
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var ctx_r2 = i0.ɵɵnextContext(2);
-            i0.ɵɵadvance(1);
-            i0.ɵɵtextInterpolate(ctx_r2.fileName);
-        }
-    }
-    function File_div_0_div_8_span_2_Template(rf, ctx) {
-        if (rf & 1) {
-            i0.ɵɵelementStart(0, "span", 16);
-            i0.ɵɵtext(1);
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var ctx_r4 = i0.ɵɵnextContext(3);
-            i0.ɵɵadvance(1);
-            i0.ɵɵtextInterpolate(ctx_r4.responseMessage);
-        }
-    }
-    function File_div_0_div_8_Template(rf, ctx) {
-        if (rf & 1) {
-            i0.ɵɵelementStart(0, "div", 13);
-            i0.ɵɵelement(1, "span", 14);
-            i0.ɵɵtemplate(2, File_div_0_div_8_span_2_Template, 2, 1, "span", 15);
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var ctx_r3 = i0.ɵɵnextContext(2);
-            i0.ɵɵadvance(2);
-            i0.ɵɵproperty("ngIf", ctx_r3.responseMessage);
-        }
-    }
-    var _c0$1 = function (a0, a1) { return { "background-image": a0, "height": a1 }; };
-    function File_div_0_Template(rf, ctx) {
-        if (rf & 1) {
-            var _r6_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "div", 1);
-            i0.ɵɵelementStart(1, "div", 2);
-            i0.ɵɵtemplate(2, File_div_0_div_2_Template, 2, 1, "div", 3);
-            i0.ɵɵtemplate(3, File_div_0_div_3_Template, 2, 1, "div", 4);
-            i0.ɵɵelement(4, "progress", 5);
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(5, "div", 6);
-            i0.ɵɵelementStart(6, "span", 7);
-            i0.ɵɵelementStart(7, "a", 8);
-            i0.ɵɵlistener("click", function File_div_0_Template_a_click_7_listener($event) { i0.ɵɵrestoreView(_r6_1); var ctx_r5 = i0.ɵɵnextContext(); return ctx_r5.removeFileListener($event); });
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementEnd();
-            i0.ɵɵtemplate(8, File_div_0_div_8_Template, 3, 1, "div", 9);
-            i0.ɵɵelementStart(9, "div", 10);
-            i0.ɵɵtext(10);
-            i0.ɵɵpipe(11, "getSize");
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var ctx_r0 = i0.ɵɵnextContext();
-            i0.ɵɵadvance(1);
-            i0.ɵɵproperty("ngStyle", i0.ɵɵpureFunction2(8, _c0$1, "url(" + ctx_r0.previewSrc + ")", ctx_r0.previewHeight + "px"));
-            i0.ɵɵadvance(1);
-            i0.ɵɵproperty("ngIf", ctx_r0.ext);
-            i0.ɵɵadvance(1);
-            i0.ɵɵproperty("ngIf", !ctx_r0.previewSrc);
-            i0.ɵɵadvance(1);
-            i0.ɵɵproperty("value", ctx_r0.percentage);
-            i0.ɵɵadvance(4);
-            i0.ɵɵproperty("ngIf", !ctx_r0.loadingSuccessful);
-            i0.ɵɵadvance(2);
-            i0.ɵɵtextInterpolate(i0.ɵɵpipeBind1(11, 6, ctx_r0.file.size));
-        }
-    }
-    var File = /** @class */ (function () {
-        function File() {
-            this.ext = '';
-            this.previewSrc = '';
-            this.fileName = '';
-            //TODO: workaround - depends on strict values;
-            this.previewHeight = 75;
-            this.removeFile = new i0.EventEmitter(true);
-        }
-        //ngHooks
-        File.prototype.ngAfterContentInit = function () {
-            this.file && this.getFileType();
-        };
-        File.prototype.removeFileListener = function (e) {
-            e.preventDefault();
-            this.removeFile && this.removeFile.emit(true);
-        };
-        File.prototype.getFileType = function () {
-            var _this = this;
-            var imageType = /^image\//, reader;
-            if (!imageType.test(this.file.type)) {
-                var ext = this.file.name.split('.').pop();
-                this.fileName = this.file.name;
-                this.ext = ext.length > 3
-                    ? 'file'
-                    : "." + ext;
-                return;
-            }
-            reader = new FileReader();
-            reader.addEventListener("load", function () {
-                var img = new Image, result = reader.result;
-                img.onload = function () {
-                    var ratio = img.height / img.width, scaledHeight = ratio * _this.previewHeight;
-                    _this.previewSrc = result;
-                    _this.previewHeight = (scaledHeight < _this.previewHeight)
-                        ? _this.previewHeight
-                        : scaledHeight;
-                };
-                img.src = result;
-            }, false);
-            if (this.file) {
-                reader.readAsDataURL(this.file);
-            }
-        };
-        return File;
-    }());
-    File.ɵfac = function File_Factory(t) { return new (t || File)(); };
-    File.ɵcmp = i0.ɵɵdefineComponent({ type: File, selectors: [["fileItem"]], inputs: { file: "file", index: "index", percentage: "percentage", loadingSuccessful: "loadingSuccessful", responseMessage: "responseMessage" }, outputs: { removeFile: "removeFile" }, decls: 1, vars: 1, consts: [["class", "file-container", 4, "ngIf"], [1, "file-container"], [1, "flex-block", "file-preview", 3, "ngStyle"], ["class", "flex-block file-preview-ext ", 4, "ngIf"], ["class", "flex-block file-name", 4, "ngIf"], ["max", "100", 1, "file-progress", 3, "value"], [1, "file-remove"], [1, "remove"], ["href", "#", 3, "click"], ["class", "file-upload-error", 4, "ngIf"], [1, "flex-block"], [1, "flex-block", "file-preview-ext"], [1, "flex-block", "file-name"], [1, "file-upload-error"], [1, "warning"], ["class", "tooltiptext", 4, "ngIf"], [1, "tooltiptext"]], template: function File_Template(rf, ctx) {
-            if (rf & 1) {
-                i0.ɵɵtemplate(0, File_div_0_Template, 12, 11, "div", 0);
-            }
-            if (rf & 2) {
-                i0.ɵɵproperty("ngIf", ctx.file);
-            }
-        }, directives: [i1.NgIf, i1.NgStyle], pipes: [GetSizePipe], styles: [".file-container[_ngcontent-%COMP%] {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            width: 75px;\n            margin: 20px 10px 0 0;\n            transition: opacity 0.5s, margin 0.5s linear;\n            flex-direction: column;\n            position:relative;\n        }\n\n        .file-container.uploaded[_ngcontent-%COMP%] {\n            opacity: 0;\n            margin: 0;\n            height: 0;\n            overflow: hidden;\n        }\n\n        .flex-block[_ngcontent-%COMP%] {\n            width: 90%;\n            text-align: center;\n            font-size: 0.8em;\n            margin: 2px 0;\n        }\n\n        .file-remove[_ngcontent-%COMP%] {\n            cursor: pointer;\n            position: absolute;\n            left: 87%;\n            top: 8px;\n        }\n        .file-upload-error[_ngcontent-%COMP%] {\n            position: absolute;\n            top: 8px;\n            left:-8px;\n        }\n        .file-name[_ngcontent-%COMP%] {\n            text-overflow: ellipsis;\n            overflow: hidden;\n        }\n\n        .file-preview[_ngcontent-%COMP%] {\n            background: #ccc;\n            border-radius: 2px;\n            width: inherit;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            flex-direction: column;\n            background-size: cover;\n            color: #fff;\n        }\n\n         .file-preview-ext[_ngcontent-%COMP%] {\n            text-transform: uppercase;\n        }\n\n        .file-progress[_ngcontent-%COMP%] {\n            width: 80%;\n            display: block;\n        }\n\n\n        button[_ngcontent-%COMP%] {\n            margin: 0;\n        }\n\nspan[_ngcontent-%COMP%] {\n    position:relative;\n    z-index:1;\n    overflow:hidden;\n    list-style:none;\n    padding:0;\n    margin:0 0 0.25em;\n}\n\nspan[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:link {\n    display:block;\n    border:0;\n    padding-left:28px;\n    color:#c55500;\n}\n\nspan[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:focus {\n    color:#730800;\n    background:transparent;\n}\n\nspan[_ngcontent-%COMP%]:before, span[_ngcontent-%COMP%]:after, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:before, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:after {\n    content:\"\";\n    position:absolute;\n    top:50%;\n    left:0;\n}\n\nspan[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:before, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:after {\n    margin:-8px 0 0;\n    background:#c55500;\n}\n\nspan[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover:before, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:focus:before {\n    background:#730800;\n}\n\n\n.remove[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:before {\n    width:16px;\n    height:16px;\n    \n    -webkit-border-radius:16px;\n    -moz-border-radius:16px;\n    border-radius:16px;\n}\n\n.remove[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:after {\n    left:3px;\n    width:10px;\n    height:2px;\n    margin-top:-1px;\n    background:#fff;\n}\n.warning[_ngcontent-%COMP%]:before {\n    content:\"!\";\n    z-index:2;\n    left:8px;\n    margin-top:-8px;\n    font-size:14px;\n    font-weight:bold;\n    color:#000;\n}\n\n.warning[_ngcontent-%COMP%]:after {\n    z-index:1;\n    border-width:0 11px 18px;\n    border-style:solid;\n    border-color:#F8D201 transparent;\n    margin-top:-10px;\n    background:transparent;\n}\n\n.file-upload-error[_ngcontent-%COMP%]   .tooltiptext[_ngcontent-%COMP%] {\n    visibility: hidden;\n    white-space:nowrap;\n    background-color: black;\n    color: #fff;\n    text-align: center;\n    padding: 5px;\n    border-radius: 6px;\n\n    \n    position: absolute;\n    z-index: 1;\n}\n\n.file-upload-error[_ngcontent-%COMP%]:hover   .tooltiptext[_ngcontent-%COMP%] {\n    visibility: visible;\n}"] });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(File, [{
-                type: i0.Component,
-                args: [{
-                        selector: 'fileItem',
-                        styles: ["\n        .file-container {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            width: 75px;\n            margin: 20px 10px 0 0;\n            transition: opacity 0.5s, margin 0.5s linear;\n            flex-direction: column;\n            position:relative;\n        }\n\n        .file-container.uploaded {\n            opacity: 0;\n            margin: 0;\n            height: 0;\n            overflow: hidden;\n        }\n\n        .flex-block {\n            width: 90%;\n            text-align: center;\n            font-size: 0.8em;\n            margin: 2px 0;\n        }\n\n        .file-remove {\n            cursor: pointer;\n            position: absolute;\n            left: 87%;\n            top: 8px;\n        }\n        .file-upload-error {\n            position: absolute;\n            top: 8px;\n            left:-8px;\n        }\n        .file-name {\n            text-overflow: ellipsis;\n            overflow: hidden;\n        }\n\n        .file-preview {\n            background: #ccc;\n            border-radius: 2px;\n            width: inherit;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            flex-direction: column;\n            background-size: cover;\n            color: #fff;\n        }\n\n         .file-preview-ext {\n            text-transform: uppercase;\n        }\n\n        .file-progress {\n            width: 80%;\n            display: block;\n        }\n\n\n        button {\n            margin: 0;\n        }\n\nspan {\n    position:relative;\n    z-index:1;\n    overflow:hidden;\n    list-style:none;\n    padding:0;\n    margin:0 0 0.25em;\n}\n\nspan a:link {\n    display:block;\n    border:0;\n    padding-left:28px;\n    color:#c55500;\n}\n\nspan a:hover,\nspan a:focus {\n    color:#730800;\n    background:transparent;\n}\n\nspan:before,\nspan:after,\nspan a:before,\nspan a:after {\n    content:\"\";\n    position:absolute;\n    top:50%;\n    left:0;\n}\n\nspan a:before,\nspan a:after {\n    margin:-8px 0 0;\n    background:#c55500;\n}\n\nspan a:hover:before,\nspan a:focus:before {\n    background:#730800;\n}\n\n\n.remove a:before {\n    width:16px;\n    height:16px;\n    /* css3 */\n    -webkit-border-radius:16px;\n    -moz-border-radius:16px;\n    border-radius:16px;\n}\n\n.remove a:after {\n    left:3px;\n    width:10px;\n    height:2px;\n    margin-top:-1px;\n    background:#fff;\n}\n.warning:before {\n    content:\"!\";\n    z-index:2;\n    left:8px;\n    margin-top:-8px;\n    font-size:14px;\n    font-weight:bold;\n    color:#000;\n}\n\n.warning:after {\n    z-index:1;\n    border-width:0 11px 18px;\n    border-style:solid;\n    border-color:#F8D201 transparent;\n    margin-top:-10px;\n    background:transparent;\n}\n\n.file-upload-error .tooltiptext {\n    visibility: hidden;\n    white-space:nowrap;\n    background-color: black;\n    color: #fff;\n    text-align: center;\n    padding: 5px;\n    border-radius: 6px;\n\n    /* Position the tooltip text - see examples below! */\n    position: absolute;\n    z-index: 1;\n}\n\n.file-upload-error:hover .tooltiptext {\n    visibility: visible;\n}\n\n    "],
-                        template: "\n        <div *ngIf=\"file\" class=\"file-container\">\n            <div class=\"flex-block file-preview\" [ngStyle]=\"{'background-image': 'url(' + previewSrc + ')', 'height': previewHeight + 'px'}\">\n                <div *ngIf=\"ext\" class=\"flex-block file-preview-ext \">{{ext}}</div>\n                <div *ngIf=\"!previewSrc\" class=\"flex-block file-name\">{{fileName}}</div>\n                <progress [value]=\"percentage\" max=\"100\" class=\"file-progress\"></progress>\n            </div>\n            <div class=\"file-remove\">\n                <span class=\"remove\"><a href=\"#\" (click)=\"removeFileListener($event)\"></a></span>\n            </div>\n            <div *ngIf=\"!loadingSuccessful\" class=\"file-upload-error\">\n                <span class=\"warning\"></span>\n                <span *ngIf=\"responseMessage\" class=\"tooltiptext\">{{responseMessage}}</span>\n            </div>\n            <div class=\"flex-block\">{{file.size | getSize }}</div>\n        </div>\n    "
-                    }]
-            }], null, { file: [{
-                    type: i0.Input
-                }], index: [{
-                    type: i0.Input
-                }], percentage: [{
-                    type: i0.Input
-                }], loadingSuccessful: [{
-                    type: i0.Input
-                }], responseMessage: [{
-                    type: i0.Input
-                }], removeFile: [{
-                    type: i0.Output
-                }] });
-    })();
-
-    function FileList_fileItem_1_Template(rf, ctx) {
-        if (rf & 1) {
-            var _r3_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "fileItem", 2);
-            i0.ɵɵlistener("removeFile", function FileList_fileItem_1_Template_fileItem_removeFile_0_listener() { i0.ɵɵrestoreView(_r3_1); var file_r1 = ctx.$implicit; var ctx_r2 = i0.ɵɵnextContext(); return ctx_r2.removeFile(file_r1); });
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var file_r1 = ctx.$implicit;
-            i0.ɵɵproperty("file", file_r1.File)("percentage", file_r1.percentage)("loadingSuccessful", file_r1.loadingSuccessful)("responseMessage", file_r1.responseMessage);
-        }
-    }
-    var FileList = /** @class */ (function () {
-        function FileList(filesStore) {
-            this.filesStore = filesStore;
-        }
-        FileList.prototype.removeFile = function (iFile) {
-            this.filesStore.removeFiles(iFile);
-        };
-        return FileList;
-    }());
-    FileList.ɵfac = function FileList_Factory(t) { return new (t || FileList)(i0.ɵɵdirectiveInject(FilesStore)); };
-    FileList.ɵcmp = i0.ɵɵdefineComponent({ type: FileList, selectors: [["fileList"], ["", "fileList", ""]], decls: 2, vars: 1, consts: [[1, "file-list"], [3, "file", "percentage", "loadingSuccessful", "responseMessage", "removeFile", 4, "ngFor", "ngForOf"], [3, "file", "percentage", "loadingSuccessful", "responseMessage", "removeFile"]], template: function FileList_Template(rf, ctx) {
-            if (rf & 1) {
-                i0.ɵɵelementStart(0, "div", 0);
-                i0.ɵɵtemplate(1, FileList_fileItem_1_Template, 1, 4, "fileItem", 1);
-                i0.ɵɵelementEnd();
-            }
-            if (rf & 2) {
-                i0.ɵɵadvance(1);
-                i0.ɵɵproperty("ngForOf", ctx.filesStore.iFiles);
-            }
-        }, directives: [i1.NgForOf, File], styles: [".file-list[_ngcontent-%COMP%] {\n            width: 430px;\n            margin-bottom: 5px;\n            display: flex;\n            flex-flow: wrap;\n            justify-content: flex-start;\n         }"] });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileList, [{
-                type: i0.Component,
-                args: [{
-                        selector: 'fileList, [fileList]',
-                        styles: ["\n        .file-list {\n            width: 430px;\n            margin-bottom: 5px;\n            display: flex;\n            flex-flow: wrap;\n            justify-content: flex-start;\n         }\n    "],
-                        template: "\n        <div class=\"file-list\">\n            <fileItem *ngFor=\"let file of filesStore.iFiles\"\n                [file]=\"file.File\"\n                [percentage]=\"file.percentage\"\n                [loadingSuccessful]=\"file.loadingSuccessful\"\n                [responseMessage]=\"file.responseMessage\"\n                (removeFile)=\"removeFile(file)\">\n            </fileItem>\n        </div>\n    "
-                    }]
-            }], function () { return [{ type: FilesStore }]; }, null);
-    })();
-
-    function FileDroppa_fileList_5_Template(rf, ctx) {
-        if (rf & 1) {
-            i0.ɵɵelement(0, "fileList");
-        }
-    }
-    function FileDroppa_div_6_div_4_Template(rf, ctx) {
-        if (rf & 1) {
-            var _r7_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "div", 10);
-            i0.ɵɵlistener("click", function FileDroppa_div_6_div_4_Template_div_click_0_listener() { i0.ɵɵrestoreView(_r7_1); var ctx_r6 = i0.ɵɵnextContext(2); return ctx_r6.uploadAllFiles(); });
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var ctx_r3 = i0.ɵɵnextContext(2);
-            i0.ɵɵproperty("innerHTML", ctx_r3.uploadButtonTemplate, i0.ɵɵsanitizeHtml);
-        }
-    }
-    function FileDroppa_div_6_div_8_Template(rf, ctx) {
-        if (rf & 1) {
-            var _r9_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "div", 10);
-            i0.ɵɵlistener("click", function FileDroppa_div_6_div_8_Template_div_click_0_listener() { i0.ɵɵrestoreView(_r9_1); var ctx_r8 = i0.ɵɵnextContext(2); return ctx_r8.removeAllFiles(); });
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var ctx_r5 = i0.ɵɵnextContext(2);
-            i0.ɵɵproperty("innerHTML", ctx_r5.removeButtonTemplate, i0.ɵɵsanitizeHtml);
-        }
-    }
-    function FileDroppa_div_6_Template(rf, ctx) {
-        if (rf & 1) {
-            var _r11_1 = i0.ɵɵgetCurrentView();
-            i0.ɵɵelementStart(0, "div", 5);
-            i0.ɵɵelementStart(1, "div", 6, 7);
-            i0.ɵɵlistener("click", function FileDroppa_div_6_Template_div_click_1_listener() { i0.ɵɵrestoreView(_r11_1); var ctx_r10 = i0.ɵɵnextContext(); return ctx_r10.uploadAllFiles(); });
-            i0.ɵɵprojection(3, 1);
-            i0.ɵɵelementEnd();
-            i0.ɵɵtemplate(4, FileDroppa_div_6_div_4_Template, 1, 1, "div", 8);
-            i0.ɵɵelementStart(5, "div", 6, 9);
-            i0.ɵɵlistener("click", function FileDroppa_div_6_Template_div_click_5_listener() { i0.ɵɵrestoreView(_r11_1); var ctx_r12 = i0.ɵɵnextContext(); return ctx_r12.removeAllFiles(); });
-            i0.ɵɵprojection(7, 2);
-            i0.ɵɵelementEnd();
-            i0.ɵɵtemplate(8, FileDroppa_div_6_div_8_Template, 1, 1, "div", 8);
-            i0.ɵɵelementEnd();
-        }
-        if (rf & 2) {
-            var _r2 = i0.ɵɵreference(2);
-            var _r4 = i0.ɵɵreference(6);
-            i0.ɵɵadvance(4);
-            i0.ɵɵproperty("ngIf", _r2.children.length === 0);
-            i0.ɵɵadvance(4);
-            i0.ɵɵproperty("ngIf", _r4.children.length === 0);
-        }
-    }
-    var _c0 = ["*", [["", "upload-button", ""]], [["", "remove-button", ""]]];
-    var _c1 = ["*", "[upload-button]", "[remove-button]"];
-    var FileDroppa = /** @class */ (function () {
-        function FileDroppa(filesStore, fileUploadService) {
-            var _this = this;
-            this.filesStore = filesStore;
-            this.fileUploadService = fileUploadService;
-            this.showFilesList = true;
-            this.autoUpload = false;
-            this.beforeRequest = null;
-            this.beforeFileUpload = null;
-            this.beforeAddFile = null;
-            this.dropZoneTemplate = "\n      <div class=\"file_dropZone_internal\">\n          Drop Files Here\n      </div>\n    ";
-            this.filesUpdated = new i0.EventEmitter(true);
-            this.fileUploaded = new i0.EventEmitter(true);
-            this.uploadButtonTemplate = "\n      <div class=\"file-droppa-btn orange\">\n        <span>Upload All Files</span>\n       </div>\n    ";
-            this.removeButtonTemplate = "\n      <div class=\"file-droppa-btn red\">\n        <span>Remove All Files</span>\n       </div>\n    ";
-            this.multiple = true;
-            filesStore.filesUpdated.subscribe(function () {
-                _this.filesUpdated.emit(filesStore.files);
-            });
-            fileUploadService.fileUploadedEvent.subscribe(function (_a) {
-                var _b = __read(_a, 3), success = _b[0], response = _b[1], iFile = _b[2];
-                if (success) {
-                    _this.filesStore.removeFiles(iFile);
-                }
-                else {
-                    iFile.loadingSuccessful = false;
-                    iFile.responseText = false;
-                }
-                _this.fileUploaded.emit([success, response, iFile.file]);
-            });
-            filesStore.startAutoUploading = this.startAutoUploading.bind(this);
-        }
-        Object.defineProperty(FileDroppa.prototype, "url", {
-            set: function (tmpUrl) {
-                this.fileUploadService.url = tmpUrl;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        FileDroppa.prototype.startAutoUploading = function (iFile) {
-            this.autoUpload && this.fileUploadService.uploadFile(iFile);
-        };
-        /**
-         * We got to pass Input parameters to Service instances
-         */
-        FileDroppa.prototype.ngOnInit = function () {
-            this.filesStore.beforeAddFile = (typeof this.beforeAddFile === "function") ? this.beforeAddFile : function (file) { return true; };
-            this.fileUploadService.beforeRequest = this.beforeRequest;
-            this.fileUploadService.beforeFileUpload = (typeof this.beforeFileUpload === "function") ? this.beforeFileUpload : function (formData) { return true; };
-        };
-        FileDroppa.prototype.removeAllFiles = function () {
-            this.filesStore.clearStore();
-        };
-        FileDroppa.prototype.uploadAllFiles = function () {
-            this.fileUploadService.uploadFiles(this.filesStore.iFiles);
-        };
-        return FileDroppa;
-    }());
-    FileDroppa.ɵfac = function FileDroppa_Factory(t) { return new (t || FileDroppa)(i0.ɵɵdirectiveInject(FilesStore), i0.ɵɵdirectiveInject(FileUpload)); };
-    FileDroppa.ɵcmp = i0.ɵɵdefineComponent({ type: FileDroppa, selectors: [["fileDroppa"]], inputs: { showFilesList: "showFilesList", autoUpload: "autoUpload", beforeRequest: "beforeRequest", url: "url", beforeFileUpload: "beforeFileUpload", beforeAddFile: "beforeAddFile", dropZoneTemplate: "dropZoneTemplate", uploadButtonTemplate: "uploadButtonTemplate", removeButtonTemplate: "removeButtonTemplate", multiple: "multiple" }, outputs: { filesUpdated: "filesUpdated", fileUploaded: "fileUploaded" }, features: [i0.ɵɵProvidersFeature([FilesStore, FileUpload])], ngContentSelectors: _c1, decls: 7, vars: 4, consts: [[1, "file-droppa-container"], [3, "multiple"], [3, "innerHTML"], [4, "ngIf"], ["class", "file-droppa-btns", 4, "ngIf"], [1, "file-droppa-btns"], [3, "click"], ["uploadButtonArea", ""], [3, "innerHTML", "click", 4, "ngIf"], ["removeButtonArea", ""], [3, "innerHTML", "click"]], template: function FileDroppa_Template(rf, ctx) {
-            if (rf & 1) {
-                i0.ɵɵprojectionDef(_c0);
-                i0.ɵɵelementStart(0, "div", 0);
-                i0.ɵɵelementStart(1, "fileDropZone", 1);
-                i0.ɵɵelement(2, "div", 2);
-                i0.ɵɵelementEnd();
-                i0.ɵɵelement(3, "br");
-                i0.ɵɵprojection(4);
-                i0.ɵɵtemplate(5, FileDroppa_fileList_5_Template, 1, 0, "fileList", 3);
-                i0.ɵɵtemplate(6, FileDroppa_div_6_Template, 9, 2, "div", 4);
-                i0.ɵɵelementEnd();
-            }
-            if (rf & 2) {
-                i0.ɵɵadvance(1);
-                i0.ɵɵproperty("multiple", ctx.multiple);
-                i0.ɵɵadvance(1);
-                i0.ɵɵproperty("innerHTML", ctx.dropZoneTemplate, i0.ɵɵsanitizeHtml);
-                i0.ɵɵadvance(3);
-                i0.ɵɵproperty("ngIf", ctx.showFilesList);
-                i0.ɵɵadvance(1);
-                i0.ɵɵproperty("ngIf", ctx.filesStore.iFiles.length);
-            }
-        }, directives: [FileDropZone, i1.NgIf, FileList], styles: ["\n        .file-droppa-container {\n            width: 400px;\n        }\n        .file-droppa-btns {\n         display: flex;\n          align-items: center;\n          justify-content: center;\n\n        }\n        .file-droppa-btn {\n              margin: 15px;\n              padding: 0;\n\n              overflow: hidden;\n\n              border-width: 0;\n              outline: none;\n              border-radius: 2px;\n              box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n\n              background-color: #2ecc71;\n              color: #ecf0f1;\n\n              transition: background-color .3s;\n              width: 140px;\n              text-align: center;\n              font-size: 12px;\n\n        }\n\n        .file-droppa-btn:hover{\n          background-color: #27ae60;\n        }\n\n        .file-droppa-btn span {\n          display: block;\n          padding: 12px 24px;\n        }\n\n        .file-droppa-btn.orange {\n          background-color: #e67e22;\n        }\n\n        .file-droppa-btn.orange:hover {\n          background-color: #d35400;\n        }\n\n        .file-droppa-btn.red {\n          background-color: #e74c3c;\n        }\n\n        .file-droppa-btn.red:hover{\n          background-color: #c0392b;\n        }\n        "], encapsulation: 2 });
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileDroppa, [{
-                type: i0.Component,
-                args: [{
-                        selector: 'fileDroppa',
-                        providers: [FilesStore, FileUpload],
-                        encapsulation: i0.ViewEncapsulation.None,
-                        styles: ["\n        .file-droppa-container {\n            width: 400px;\n        }\n        .file-droppa-btns {\n         display: flex;\n          align-items: center;\n          justify-content: center;\n\n        }\n        .file-droppa-btn {\n              margin: 15px;\n              padding: 0;\n\n              overflow: hidden;\n\n              border-width: 0;\n              outline: none;\n              border-radius: 2px;\n              box-shadow: 0 1px 4px rgba(0, 0, 0, .6);\n\n              background-color: #2ecc71;\n              color: #ecf0f1;\n\n              transition: background-color .3s;\n              width: 140px;\n              text-align: center;\n              font-size: 12px;\n\n        }\n\n        .file-droppa-btn:hover{\n          background-color: #27ae60;\n        }\n\n        .file-droppa-btn span {\n          display: block;\n          padding: 12px 24px;\n        }\n\n        .file-droppa-btn.orange {\n          background-color: #e67e22;\n        }\n\n        .file-droppa-btn.orange:hover {\n          background-color: #d35400;\n        }\n\n        .file-droppa-btn.red {\n          background-color: #e74c3c;\n        }\n\n        .file-droppa-btn.red:hover{\n          background-color: #c0392b;\n        }\n        "
-                        ],
-                        template: "\n        <div class=\"file-droppa-container\">\n            <fileDropZone [multiple]=\"multiple\">\n                <div [innerHTML]=\"dropZoneTemplate\"></div>\n            </fileDropZone>\n            <br/>\n            <ng-content></ng-content>\n            <fileList *ngIf=\"showFilesList\"></fileList>\n            <div class=\"file-droppa-btns\" *ngIf=\"filesStore.iFiles.length\">\n              <div #uploadButtonArea (click)=\"uploadAllFiles()\">\n                <ng-content select=\"[upload-button]\"></ng-content>\n              </div>\n              <div *ngIf=\"uploadButtonArea.children.length === 0\" (click)=\"uploadAllFiles();\"\n                   [innerHTML]=\"uploadButtonTemplate\"></div>\n              <div #removeButtonArea (click)=\"removeAllFiles();\">\n                <ng-content select=\"[remove-button]\"></ng-content>\n              </div>\n              <div *ngIf=\"removeButtonArea.children.length === 0\" (click)=\"removeAllFiles();\"\n                   [innerHTML]=\"removeButtonTemplate\"></div>\n            </div>\n        </div>\n    "
-                    }]
-            }], function () { return [{ type: FilesStore }, { type: FileUpload }]; }, { showFilesList: [{
-                    type: i0.Input
-                }], autoUpload: [{
-                    type: i0.Input
-                }], beforeRequest: [{
-                    type: i0.Input
-                }], url: [{
-                    type: i0.Input
-                }], beforeFileUpload: [{
-                    type: i0.Input
-                }], beforeAddFile: [{
-                    type: i0.Input
-                }], dropZoneTemplate: [{
-                    type: i0.Input
-                }], filesUpdated: [{
-                    type: i0.Output
-                }], fileUploaded: [{
-                    type: i0.Output
-                }], uploadButtonTemplate: [{
-                    type: i0.Input
-                }], removeButtonTemplate: [{
-                    type: i0.Input
-                }], multiple: [{
-                    type: i0.Input
-                }] });
-    })();
+    GetSizePipe.decorators = [
+        { type: core.Pipe, args: [{ name: 'getSize' },] }
+    ];
 
     var NgxFileDroppaModule = /** @class */ (function () {
         function NgxFileDroppaModule() {
         }
         return NgxFileDroppaModule;
     }());
-    NgxFileDroppaModule.ɵmod = i0.ɵɵdefineNgModule({ type: NgxFileDroppaModule });
-    NgxFileDroppaModule.ɵinj = i0.ɵɵdefineInjector({ factory: function NgxFileDroppaModule_Factory(t) { return new (t || NgxFileDroppaModule)(); }, imports: [[
-                i1.CommonModule,
-            ]] });
-    (function () {
-        (typeof ngJitMode === "undefined" || ngJitMode) && i0.ɵɵsetNgModuleScope(NgxFileDroppaModule, { declarations: [GetSizePipe,
-                FileDroppa,
-                File,
-                FileDropZone,
-                FileList], imports: [i1.CommonModule], exports: [FileDroppa,
-                File,
-                FileDropZone,
-                FileList] });
-    })();
-    (function () {
-        (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(NgxFileDroppaModule, [{
-                type: i0.NgModule,
-                args: [{
-                        imports: [
-                            i1.CommonModule,
-                        ],
-                        declarations: [
-                            GetSizePipe,
-                            FileDroppa,
-                            File,
-                            FileDropZone,
-                            FileList
-                        ],
-                        exports: [
-                            FileDroppa,
-                            File,
-                            FileDropZone,
-                            FileList
-                        ],
-                    }]
-            }], null, null);
-    })();
+    NgxFileDroppaModule.decorators = [
+        { type: core.NgModule, args: [{
+                    imports: [
+                        common.CommonModule,
+                    ],
+                    declarations: [
+                        GetSizePipe,
+                        FileDroppa,
+                        File,
+                        FileDropZone,
+                        FileList
+                    ],
+                    exports: [
+                        FileDroppa,
+                        File,
+                        FileDropZone,
+                        FileList
+                    ],
+                },] }
+    ];
 
     /*
      * Public API Surface of ngx-file-droppa
@@ -1167,6 +904,10 @@
     exports.FileDroppa = FileDroppa;
     exports.FileList = FileList;
     exports.NgxFileDroppaModule = NgxFileDroppaModule;
+    exports.ɵa = GetSizePipe;
+    exports.ɵb = FilesStore;
+    exports.ɵc = FileUpload;
+    exports.ɵd = FileParser;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

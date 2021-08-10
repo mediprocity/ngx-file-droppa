@@ -1,6 +1,8 @@
 /**
  * Generated bundle index. Do not edit.
  */
-/// <amd-module name="ngx-file-droppa" />
 export * from './public-api';
-//# sourceMappingURL=ngx-file-droppa.d.ts.map
+export { GetSizePipe as ɵa } from './lib/Pipes/GetSize.pipe';
+export { FileParser as ɵd } from './lib/Services/FileParser.service';
+export { FilesStore as ɵb } from './lib/Services/FileStore.service';
+export { FileUpload as ɵc } from './lib/Services/FileUpload.service';

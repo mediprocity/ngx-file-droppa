@@ -21,4 +21,3 @@ export declare class FileWrapper {
     uploader: any;
     constructor(file: any);
 }
-//# sourceMappingURL=FileWrapper.service.d.ts.map
