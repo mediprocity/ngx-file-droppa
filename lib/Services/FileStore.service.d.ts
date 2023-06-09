@@ -1,5 +1,6 @@
 import { EventEmitter } from "@angular/core";
 import { iFile } from "./FileWrapper.service";
+import * as i0 from "@angular/core";
 export declare class FilesStore {
     filesUpdated: EventEmitter<any>;
     startAutoUploading: any;
@@ -12,4 +13,7 @@ export declare class FilesStore {
     addFiles(files: any): void;
     removeFiles(iFile: iFile): void;
     clearStore(): void;
+    static ɵfac: i0.ɵɵFactoryDeclaration<FilesStore, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<FilesStore>;
 }
+//# sourceMappingURL=FileStore.service.d.ts.map
