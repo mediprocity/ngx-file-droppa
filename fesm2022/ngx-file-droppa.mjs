@@ -73,7 +73,7 @@ class FilesStore {
     static { this.ɵfac = function FilesStore_Factory(t) { return new (t || FilesStore)(); }; }
     static { this.ɵprov = /*@__PURE__*/ i0.ɵɵdefineInjectable({ token: FilesStore, factory: FilesStore.ɵfac }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FilesStore, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FilesStore, [{
         type: Injectable
     }], null, null); })();
 
@@ -144,7 +144,7 @@ class FileUpload {
     static { this.ɵfac = function FileUpload_Factory(t) { return new (t || FileUpload)(); }; }
     static { this.ɵprov = /*@__PURE__*/ i0.ɵɵdefineInjectable({ token: FileUpload, factory: FileUpload.ɵfac }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileUpload, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileUpload, [{
         type: Injectable
     }], null, null); })();
 
@@ -228,7 +228,7 @@ class FileParser {
     static { this.ɵfac = function FileParser_Factory(t) { return new (t || FileParser)(); }; }
     static { this.ɵprov = /*@__PURE__*/ i0.ɵɵdefineInjectable({ token: FileParser, factory: FileParser.ɵfac }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileParser, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileParser, [{
         type: Injectable
     }], null, null); })();
 
@@ -322,7 +322,7 @@ class FileDropZone {
             i0.ɵɵprojection(0);
         } }, styles: [".file_dropZone_internal{border:3px dashed #DDD;border-radius:10px;padding:10px;width:400px;height:200px;color:#ccc;text-align:center;display:table-cell;vertical-align:middle;cursor:pointer}\n"], encapsulation: 2 }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileDropZone, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileDropZone, [{
         type: Component,
         args: [{ selector: 'fileDropZone, [fileDropZone]', providers: [FileParser], template: `
         <ng-content></ng-content>
@@ -333,9 +333,10 @@ class FileDropZone {
                     '(dragleave)': 'dragleave($event)',
                     '(click)': 'onClick($event)'
                 }, encapsulation: ViewEncapsulation.None, styles: [".file_dropZone_internal{border:3px dashed #DDD;border-radius:10px;padding:10px;width:400px;height:200px;color:#ccc;text-align:center;display:table-cell;vertical-align:middle;cursor:pointer}\n"] }]
-    }], function () { return [{ type: FilesStore }, { type: i0.ElementRef }, { type: FileParser }]; }, { multiple: [{
+    }], () => [{ type: FilesStore }, { type: i0.ElementRef }, { type: FileParser }], { multiple: [{
             type: Input
         }] }); })();
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassDebugInfo(FileDropZone, { className: "FileDropZone" }); })();
 
 /*
  * Converts bytes to MB, GB and so on
@@ -357,7 +358,7 @@ class GetSizePipe {
     static { this.ɵfac = function GetSizePipe_Factory(t) { return new (t || GetSizePipe)(); }; }
     static { this.ɵpipe = /*@__PURE__*/ i0.ɵɵdefinePipe({ name: "getSize", type: GetSizePipe, pure: true }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(GetSizePipe, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(GetSizePipe, [{
         type: Pipe,
         args: [{ name: 'getSize' }]
     }], null, null); })();
@@ -399,12 +400,11 @@ function File_div_0_div_8_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵadvance(2);
     i0.ɵɵproperty("ngIf", ctx_r3.responseMessage);
 } }
-const _c0$1 = function (a0, a1) { return { "background-image": a0, "height": a1 }; };
+const _c0$1 = (a0, a1) => ({ "background-image": a0, "height": a1 });
 function File_div_0_Template(rf, ctx) { if (rf & 1) {
     const _r6 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "div", 1)(1, "div", 2);
-    i0.ɵɵtemplate(2, File_div_0_div_2_Template, 2, 1, "div", 3);
-    i0.ɵɵtemplate(3, File_div_0_div_3_Template, 2, 1, "div", 4);
+    i0.ɵɵtemplate(2, File_div_0_div_2_Template, 2, 1, "div", 3)(3, File_div_0_div_3_Template, 2, 1, "div", 4);
     i0.ɵɵelement(4, "progress", 5);
     i0.ɵɵelementEnd();
     i0.ɵɵelementStart(5, "div", 6)(6, "span", 7)(7, "a", 8);
@@ -480,7 +480,7 @@ class File {
             i0.ɵɵproperty("ngIf", ctx.file);
         } }, dependencies: [i1.NgIf, i1.NgStyle, GetSizePipe], styles: [".file-container[_ngcontent-%COMP%]{display:flex;justify-content:space-between;align-items:center;width:75px;margin:20px 10px 0 0;transition:opacity .5s,margin .5s linear;flex-direction:column;position:relative}.file-container.uploaded[_ngcontent-%COMP%]{opacity:0;margin:0;height:0;overflow:hidden}.flex-block[_ngcontent-%COMP%]{width:90%;text-align:center;font-size:.8em;margin:2px 0}.file-remove[_ngcontent-%COMP%]{cursor:pointer;position:absolute;left:87%;top:8px}.file-upload-error[_ngcontent-%COMP%]{position:absolute;top:8px;left:-8px}.file-name[_ngcontent-%COMP%]{text-overflow:ellipsis;overflow:hidden}.file-preview[_ngcontent-%COMP%]{background:#ccc;border-radius:2px;width:inherit;display:flex;align-items:center;justify-content:center;flex-direction:column;background-size:cover;color:#fff}.file-preview-ext[_ngcontent-%COMP%]{text-transform:uppercase}.file-progress[_ngcontent-%COMP%]{width:80%;display:block}button[_ngcontent-%COMP%]{margin:0}span[_ngcontent-%COMP%]{position:relative;z-index:1;overflow:hidden;list-style:none;padding:0;margin:0 0 .25em}span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:link{display:block;border:0;padding-left:28px;color:#c55500}span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:focus{color:#730800;background:transparent}span[_ngcontent-%COMP%]:before, span[_ngcontent-%COMP%]:after, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:before, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:after{content:\"\";position:absolute;top:50%;left:0}span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:before, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:after{margin:-8px 0 0;background:#c55500}span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover:before, span[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:focus:before{background:#730800}.remove[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:before{width:16px;height:16px;border-radius:16px}.remove[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:after{left:3px;width:10px;height:2px;margin-top:-1px;background:#fff}.warning[_ngcontent-%COMP%]:before{content:\"!\";z-index:2;left:8px;margin-top:-8px;font-size:14px;font-weight:700;color:#000}.warning[_ngcontent-%COMP%]:after{z-index:1;border-width:0 11px 18px;border-style:solid;border-color:#F8D201 transparent;margin-top:-10px;background:transparent}.file-upload-error[_ngcontent-%COMP%]   .tooltiptext[_ngcontent-%COMP%]{visibility:hidden;white-space:nowrap;background-color:#000;color:#fff;text-align:center;padding:5px;border-radius:6px;position:absolute;z-index:1}.file-upload-error[_ngcontent-%COMP%]:hover   .tooltiptext[_ngcontent-%COMP%]{visibility:visible}"] }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(File, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(File, [{
         type: Component,
         args: [{ selector: 'fileItem', template: `
         <div *ngIf="file" class="file-container">
@@ -512,6 +512,7 @@ class File {
         }], removeFile: [{
             type: Output
         }] }); })();
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassDebugInfo(File, { className: "File" }); })();
 
 function FileList_fileItem_1_Template(rf, ctx) { if (rf & 1) {
     const _r3 = i0.ɵɵgetCurrentView();
@@ -539,7 +540,7 @@ class FileList {
             i0.ɵɵproperty("ngForOf", ctx.filesStore.iFiles);
         } }, dependencies: [i1.NgForOf, File], styles: [".file-list[_ngcontent-%COMP%]{width:430px;margin-bottom:5px;display:flex;flex-flow:wrap;justify-content:flex-start}"] }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileList, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileList, [{
         type: Component,
         args: [{ selector: 'fileList, [fileList]', template: `
         <div class="file-list">
@@ -552,7 +553,8 @@ class FileList {
             </fileItem>
         </div>
     `, styles: [".file-list{width:430px;margin-bottom:5px;display:flex;flex-flow:wrap;justify-content:flex-start}\n"] }]
-    }], function () { return [{ type: FilesStore }]; }, null); })();
+    }], () => [{ type: FilesStore }], null); })();
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassDebugInfo(FileList, { className: "FileList" }); })();
 
 function FileDroppa_fileList_5_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵelement(0, "fileList");
@@ -668,8 +670,7 @@ class FileDroppa {
             i0.ɵɵelementEnd();
             i0.ɵɵelement(3, "br");
             i0.ɵɵprojection(4);
-            i0.ɵɵtemplate(5, FileDroppa_fileList_5_Template, 1, 0, "fileList", 3);
-            i0.ɵɵtemplate(6, FileDroppa_div_6_Template, 9, 2, "div", 4);
+            i0.ɵɵtemplate(5, FileDroppa_fileList_5_Template, 1, 0, "fileList", 3)(6, FileDroppa_div_6_Template, 9, 2, "div", 4);
             i0.ɵɵelementEnd();
         } if (rf & 2) {
             i0.ɵɵadvance(1);
@@ -682,7 +683,7 @@ class FileDroppa {
             i0.ɵɵproperty("ngIf", ctx.filesStore.iFiles.length);
         } }, dependencies: [i1.NgIf, FileDropZone, FileList], styles: [".file-droppa-container{width:400px}.file-droppa-btns{display:flex;align-items:center;justify-content:center}.file-droppa-btn{margin:15px;padding:0;overflow:hidden;border-width:0;outline:none;border-radius:2px;box-shadow:0 1px 4px #0009;background-color:#2ecc71;color:#ecf0f1;transition:background-color .3s;width:140px;text-align:center;font-size:12px}.file-droppa-btn:hover{background-color:#27ae60}.file-droppa-btn span{display:block;padding:12px 24px}.file-droppa-btn.orange{background-color:#e67e22}.file-droppa-btn.orange:hover{background-color:#d35400}.file-droppa-btn.red{background-color:#e74c3c}.file-droppa-btn.red:hover{background-color:#c0392b}\n"], encapsulation: 2 }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileDroppa, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(FileDroppa, [{
         type: Component,
         args: [{ selector: 'fileDroppa', providers: [FilesStore, FileUpload], encapsulation: ViewEncapsulation.None, template: `
         <div class="file-droppa-container">
@@ -706,7 +707,7 @@ class FileDroppa {
             </div>
         </div>
     `, styles: [".file-droppa-container{width:400px}.file-droppa-btns{display:flex;align-items:center;justify-content:center}.file-droppa-btn{margin:15px;padding:0;overflow:hidden;border-width:0;outline:none;border-radius:2px;box-shadow:0 1px 4px #0009;background-color:#2ecc71;color:#ecf0f1;transition:background-color .3s;width:140px;text-align:center;font-size:12px}.file-droppa-btn:hover{background-color:#27ae60}.file-droppa-btn span{display:block;padding:12px 24px}.file-droppa-btn.orange{background-color:#e67e22}.file-droppa-btn.orange:hover{background-color:#d35400}.file-droppa-btn.red{background-color:#e74c3c}.file-droppa-btn.red:hover{background-color:#c0392b}\n"] }]
-    }], function () { return [{ type: FilesStore }, { type: FileUpload }]; }, { showFilesList: [{
+    }], () => [{ type: FilesStore }, { type: FileUpload }], { showFilesList: [{
             type: Input
         }], autoUpload: [{
             type: Input
@@ -731,13 +732,14 @@ class FileDroppa {
         }], multiple: [{
             type: Input
         }] }); })();
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassDebugInfo(FileDroppa, { className: "FileDroppa" }); })();
 
 class NgxFileDroppaModule {
     static { this.ɵfac = function NgxFileDroppaModule_Factory(t) { return new (t || NgxFileDroppaModule)(); }; }
     static { this.ɵmod = /*@__PURE__*/ i0.ɵɵdefineNgModule({ type: NgxFileDroppaModule }); }
     static { this.ɵinj = /*@__PURE__*/ i0.ɵɵdefineInjector({ imports: [CommonModule] }); }
 }
-(function () { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(NgxFileDroppaModule, [{
+(() => { (typeof ngDevMode === "undefined" || ngDevMode) && i0.ɵsetClassMetadata(NgxFileDroppaModule, [{
         type: NgModule,
         args: [{
                 imports: [
